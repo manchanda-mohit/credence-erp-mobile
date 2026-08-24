@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Swap this one line to switch the app's display name between the
+         Karnal and Kurukshetra brand variants — nothing else in this
+         project references a brand name directly. -->
+    <string name="app_name">Credence</string>
+</resources>

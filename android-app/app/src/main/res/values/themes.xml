@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Minimal XML theme the system needs before Compose takes over the
+         window — actual colors/typography for the app itself live in
+         ui/theme/Theme.kt (Compose), not here. This just needs to be a
+         valid Material3 NoActionBar theme so the Activity launches
+         cleanly. -->
+    <style name="Theme.Credence" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>

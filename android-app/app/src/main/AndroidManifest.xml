@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- The app talks to the Apps Script web app exec URL over plain
+         HTTPS (see data/ApiConfig.kt) — this is the only permission it
+         needs. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@android:drawable/sym_def_app_icon"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.Credence"
+        android:usesCleartextTraffic="false">
+
+        <!-- android:icon deliberately reuses a built-in system icon
+             placeholder rather than a custom asset, so this project has
+             no image files to keep in sync between the two brand
+             variants (Karnal / Kurukshetra) — swap in your own launcher
+             icon (mipmap-anydpi-v26/ic_launcher) whenever convenient;
+             it's a purely cosmetic change with nothing else depending
+             on it. -->
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Credence">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
