@@ -307,6 +307,70 @@ function getLeaveBalances() {
 // 7 days.
 // ─────────────────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────────────────
+// ACCRUAL LEDGER — month-by-month history for one therapist in one
+// calendar year: how many paid days accrued each month, any bonus
+// grants that landed that month, days used that month, and a running
+// (cumulative) balance. getLeaveBalances() above only ever answers "what
+// is the balance right now, this year" — this answers "how did it get
+// there," reusing the exact same accrual/adjustment/usage data those
+// functions already compute from, just broken out by month instead of
+// summed for the whole year. A future year (not yet started) returns an
+// empty rows list rather than projecting leave that hasn't accrued yet.
+// ─────────────────────────────────────────────────────────────────────────
+
+function getLeaveAccrualLedger(therapistId, year) {
+  const therapist = getTherapists().find(function (t) { return t['Therapist ID'] === therapistId; });
+  if (!therapist) throw new Error('Therapist not found: ' + therapistId);
+
+  const now = new Date();
+  const yr = Number(year) || now.getFullYear();
+  const monthsInYear = yr < now.getFullYear() ? 12 : (yr === now.getFullYear() ? now.getMonth() + 1 : 0);
+  const rate = getAccrualRate();
+
+  const paidApproved = getTherapistLeaveRequests().filter(function (l) {
+    return l['Therapist ID'] === therapistId && l.Status === 'Approved' && l['Paid Or Unpaid'] === 'Paid' &&
+      new Date(l['Start Date']).getFullYear() === yr;
+  });
+  const adjustments = getLeaveAdjustments().filter(function (a) {
+    return a['Therapist ID'] === therapistId && a['Granted Date'] && new Date(a['Granted Date']).getFullYear() === yr;
+  });
+
+  const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'];
+  let cumulativeAccrued = 0;
+  let cumulativeUsed = 0;
+  const rows = [];
+  for (let m = 0; m < monthsInYear; m++) {
+    const bonusThisMonth = adjustments
+      .filter(function (a) { return new Date(a['Granted Date']).getMonth() === m; })
+      .reduce(function (sum, a) { return sum + (Number(a['Days']) || 0); }, 0);
+    const usedThisMonth = paidApproved
+      .filter(function (l) { return new Date(l['Start Date']).getMonth() === m; })
+      .reduce(function (sum, l) { return sum + (Number(l['Number Of Days']) || 0); }, 0);
+    cumulativeAccrued += rate + bonusThisMonth;
+    cumulativeUsed += usedThisMonth;
+    rows.push({
+      month: MONTH_NAMES[m],
+      accruedThisMonth: rate,
+      bonusThisMonth: bonusThisMonth,
+      usedThisMonth: usedThisMonth,
+      cumulativeAccrued: cumulativeAccrued,
+      cumulativeUsed: cumulativeUsed,
+      balance: cumulativeAccrued - cumulativeUsed
+    });
+  }
+
+  return {
+    therapistId: therapist['Therapist ID'],
+    therapistName: therapist['Therapist Name'],
+    therapy: therapist['Therapy/Service'],
+    year: yr,
+    accrualRate: rate,
+    rows: rows
+  };
+}
+
 function getUpcomingLeaveSummary() {
   const today = todayDateStr_();
   const soon = addDaysToDateStr_(today, 7);

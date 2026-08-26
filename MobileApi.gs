@@ -148,6 +148,9 @@ function routeMobileApiAction_(action, params) {
     case 'getEnquiryDashboardStats':
       requireApiUser_(params.username);
       return getEnquiryDashboardStats(params.startDate, params.endDate, params.username);
+    case 'getEnquiryMonthlySummary':
+      requireApiUser_(params.username);
+      return getEnquiryMonthlySummary(params.startYear, params.startMonth, params.endYear, params.endMonth, params.username);
 
     // ── Staff Management: Therapists ──
     case 'getStaffPageData':
@@ -194,6 +197,9 @@ function routeMobileApiAction_(action, params) {
     case 'getLeaveBalances':
       requireApiUser_(params.username);
       return getLeaveBalances();
+    case 'getLeaveAccrualLedger':
+      requireApiUser_(params.username);
+      return getLeaveAccrualLedger(params.therapistId, params.year);
 
     // ── Expenses ──
     case 'getExpenseOptions':

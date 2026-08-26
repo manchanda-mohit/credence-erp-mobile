@@ -714,25 +714,35 @@ app, live, through a small JSON API added in `MobileApi.gs` (see step 7
 above) — nothing about the web app or its data model changed to support
 this.
 
-As of this round, the app also covers Convert Enquiry → Student (a
-"Convert to child" action on any non-Converted enquiry row, opening a
-pre-filled Add Student form the same way `openConvertModal()` does on
-the web — name, parent/guardian name, mobile, city, and an approximate
-date of birth from the enquiry's Age all carry over, plus whichever
-enquiry services match a known therapy code), paid-leave accrual and
-balances (the Leaves tab now has a live stat grid, a per-therapist paid
-leave balance table with an editable accrual rate and a "Grant bonus
-leave" action, a bonus-grant history, and a leave summary by therapist —
-all Manager/Admin-gated the same way the web version is), and a compact
+The app also covers Convert Enquiry → Student (a "Convert to child"
+action on any non-Converted enquiry row, opening a pre-filled Add
+Student form the same way `openConvertModal()` does on the web — name,
+parent/guardian name, mobile, city, and an approximate date of birth
+from the enquiry's Age all carry over, plus whichever enquiry services
+match a known therapy code), paid-leave accrual and balances (the
+Leaves tab has a live stat grid, a per-therapist paid leave balance
+table with an editable accrual rate and a "Grant bonus leave" action, a
+bonus-grant history, and a leave summary by therapist — all
+Manager/Admin-gated the same way the web version is), a compact
 "mini-analytics" strip on the main Dashboard (this month's enquiry
-pipeline and today's leave status) surfacing numbers that previously
-only lived inside the Enquiries and Staff Management screens. The
-Dashboard strip is deliberately compact — full breakdowns (enquiry
-source/service/staff performance, monthly enquiry trends) stay inside
-the Enquiries screen's own future "Dashboard" sub-view, not duplicated
-here; that richer breakdown, along with per-therapist leave summaries
-beyond what's now shown, remains a natural next addition using the same
-pattern.
+pipeline and today's leave status), and a full "Dashboard" tab inside
+the Enquiries screen itself: a period-scoped stat grid, the "Follow-ups
+Requiring Attention" list (tap a row to open that enquiry), and,
+Admin-only, the source/service/staff performance breakdown plus a
+monthly enquiry trend table with its own date-range picker.
+
+As of this latest round, the Enquiries screen also has a standalone
+"Follow-ups" tab — a third tab alongside Enquiries and Dashboard,
+mirroring the web's own three-way subnav, filtering the same loaded
+enquiry list by Priority (Overdue / Due Today / Upcoming) exactly the
+way `renderFollowupsView()` does on the web — and each row in the
+Leaves tab's balance table has a "View ledger" button opening a
+month-by-month accrual ledger for that therapist and a chosen year
+(plain accrual, bonus grants, usage, and a running balance per month).
+That closes both gaps called out after the previous round — the mobile
+app is now feature-complete against the web app's core CRUD and
+analytics, with nothing specific outstanding until a future round of
+feedback surfaces something new.
 
 ### Why a separate API file
 
@@ -817,14 +827,17 @@ HTTPS endpoint anyone with the URL could otherwise query directly, so
 ### Extending the API further
 
 Every module's `case` lines in `routeMobileApiAction_()` inside
-`MobileApi.gs` just call a function that already existed before the
-Android app did — no new backend logic, only wiring. The same recipe
-applies to anything still missing (the Enquiry Dashboard's fuller
-source/service/staff breakdown, the Enquiry Dashboard's own monthly
-trend table): add a `case` line for the existing `Code.gs`/`Leaves.gs`
-function, a matching DTO in `Models.kt`, and a `CredenceRepository`
-function, then wire it into whichever screen makes sense — nothing
-architectural stands in the way.
+`MobileApi.gs` mostly just call a function that already existed before
+the Android app did — no new backend logic, only wiring (the one
+exception so far is `getLeaveAccrualLedger` in `Leaves.gs`, written for
+the accrual-ledger feature since no pre-existing function already
+produced a month-by-month view — it's still purely additive, reading
+only the same underlying sheet data the older leave functions already
+read). The same recipe applies to whatever comes up next: add a `case`
+line for an existing (or, if genuinely needed, a new but additive)
+`Code.gs`/`Leaves.gs` function, a matching DTO in `Models.kt`, and a
+`CredenceRepository` function, then wire it into whichever screen makes
+sense — nothing architectural stands in the way.
 
 ## How the pieces fit together
 
